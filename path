@@ -1,0 +1,5 @@
+#!/bin/bash
+
+chmod u=rwx rshell
+mv rshell /usr/bin
+rm path
